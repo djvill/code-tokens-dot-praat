@@ -239,18 +239,18 @@ while use_form
     use_form = clicked - 1
     already_visited_advanced = 1
   endif
-  
-  ##Validate paths
-  if not fileReadable(in_csv$)
-    exitScript: "Input csv file " + in_csv$ + " doesn't exist"
-  endif
-  if not folderExists(tg_dir$)
-    exitScript: "TextGrid folder " + tg_dir$ + " doesn't exist"
-  endif
-  if not folderExists(wav_dir$)
-    exitScript: "Wav folder " + wav_dir$ + " doesn't exist"
-  endif
 endwhile
+
+##Validate paths
+if not fileReadable(in_csv$)
+  exitScript: "Input csv file " + in_csv$ + " doesn't exist"
+endif
+if not folderExists(tg_dir$)
+  exitScript: "TextGrid folder " + tg_dir$ + " doesn't exist"
+endif
+if not folderExists(wav_dir$)
+  exitScript: "Wav folder " + wav_dir$ + " doesn't exist"
+endif
 
 ##Ask before overwriting out_csv$
 if write and fileReadable(out_csv$)
