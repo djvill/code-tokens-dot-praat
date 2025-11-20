@@ -286,16 +286,20 @@ else
   num_coded = size(coded#)
   num_unsure = size(unsure#)
   num_excluded = size(excluded#)
-  ##Defaults
-  code_uncoded_tokens = 1
-  recode_coded_tokens = 0
-  recode_unsure_tokens = 0
-  recheck_excluded_tokens = 0
   if num_blank = num_tokens
     tokens_to_code# = to#(num_tokens)
   else
-    ##Supply defaults for file_in_progress
-    if not file_in_progress
+    ##Decide which tokens to code
+    ##Defaults
+    code_uncoded_tokens = 1
+    recode_coded_tokens = 0
+    recode_unsure_tokens = 0
+    recheck_excluded_tokens = 0
+    ##file_in_progress: either code only blanks or only unsures
+    if file_in_progress and num_blank = 0 and num_unsure > 0
+      code_uncoded_tokens = 0
+      recode_unsure_tokens = 1
+    elsif not file_in_progress
       beginPause: "Select tokens to code"
         comment: "Currently, the " + code_col$ + " column has:"
         comment: "Uncoded tokens: " + string$(num_blank)
