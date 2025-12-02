@@ -368,6 +368,9 @@ repeat
   
   ##Open in editor
   file_stem$ = replace$(transcript$, ".eaf", "", 1) + "__" + fixed$(line_start, 3) + "-" + fixed$(line_end, 3)
+  if line_start = 0
+    file_stem$ = replace$(file_stem$, "__0-", "__0.000-", 1)
+  endif
   sound = Read from file: wav_dir$ + "/" + file_stem$ + ".wav"
   tg = Read from file: tg_dir$ + "/" + file_stem$ + ".TextGrid"
   selectObject: sound, tg
