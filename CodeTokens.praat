@@ -266,6 +266,13 @@ if write and fileReadable(out_csv$)
     endPause: "OK", 1, 1
     exitScript()
   endif
+  while not tryToAppendFile(out_csv$)
+    beginPause: "Close Excel"
+      comment: "The output csv file is read-only."
+      comment: "This usually means you have it open in Excel."
+      comment: "Please close Excel and click 'OK'."
+    endPause: "OK", 1, 1
+  endwhile
 endif
 
 ##Set up data
