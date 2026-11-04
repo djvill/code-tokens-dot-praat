@@ -252,6 +252,35 @@ if not folderExists(wav_dir$)
   exitScript: "Wav folder " + wav_dir$ + " doesn't exist"
 endif
 
+##Read CSV and validate columns
+table = Read Table from comma-separated file: in_csv$
+procedure check_column: .col_name$, .col_label$
+  .col_exists = Get column index: .col_name$
+  if not .col_exists
+    beginPause: "Error: Couldn't find " + .col_label$ + " column"
+      comment: "ERROR: Couldn't find " + .col_label$ + " column named '" + .col_name$ + "'."
+      comment: "Check CSV file or change column name in advanced settings."
+    endPause: "OK", 1, 1
+    exitScript()
+  endif
+  .col_blanks# = List row numbers where... self$[row, .col_name$] = ""
+  .num_blanks = size(.col_blanks#)
+  if .num_blanks
+    beginPause: "Error: Blank(s) in " + .col_label$ + " column"
+      comment: "ERROR: Found " + string$(.num_blanks) + " blank(s) in " + .col_label$ + " column."
+      comment: "The script can't run if there's missing data."
+      comment: "Hint: Did you set 'Include annotation start/end times:'"
+      comment: "to '(always) if manually, automatically, or default aligned'?"
+    endPause: "OK", 1, 1
+    exitScript()
+  endif
+endproc
+@check_column: transcript_column$, "transcript"
+@check_column: utterance_start_time_column$, "utterance start time"
+@check_column: utterance_end_time_column$, "utterance end time"
+@check_column: word_start_time_column$, "word start time"
+@check_column: word_end_time_column$, "word end time"
+
 ##Ask before overwriting out_csv$
 if write and fileReadable(out_csv$)
   beginPause: "Overwrite output file?"
@@ -275,11 +304,11 @@ if write and fileReadable(out_csv$)
   endwhile
 endif
 
-##Set up data
-table = Read Table from comma-separated file: in_csv$
-num_tokens = Get number of rows
-has_code_column = Get column index: code_col$
+
 ##Handle different possible data states
+selectObject: table
+has_code_column = Get column index: code_col$
+num_tokens = Get number of rows
 if not has_code_column
   Append column: code_col$
   tokens_to_code# = to#(num_tokens)
