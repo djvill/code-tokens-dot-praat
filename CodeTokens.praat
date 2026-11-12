@@ -45,7 +45,7 @@ out_csv_suffix$ = "_coded"
 ##Output csv file for saving coded tokens
 out_csv$ = replace$(in_csv$, ".csv", out_csv_suffix$ + ".csv", 1)
 ##Name of column for storing codes
-code_col$ = "HandCode"
+code_column$ = "HandCode"
 ##Variants
 variants$# = {"Full vowel", "Reduced"}
 ##Number of times to play token when it's loaded
@@ -91,7 +91,7 @@ while use_form
       comment: "Check the box if you're picking up where you left off on a partially coded file"
       boolean: "File in progress", 0
       comment: "Column for storing codes (will be created if it doesn't exist)"
-      sentence: "Code column", code_col$
+      sentence: "Code column", code_column$
       comment: "Variants (separated by commas)"
       comment: "Example: diphthong,monophthong,intermediate"
       sentence: "Variants", variants$
@@ -113,9 +113,7 @@ while use_form
     else
       exitScript: "Input folder " + input_folder$ + " doesn't exist"
     endif
-    if code_column$ <> ""
-      code_col$ = code_column$
-    else
+    if code_column$ = ""
       exitScript: "Code column must not be blank"
     endif
     if number_of_autoplays > 0
@@ -307,17 +305,17 @@ endif
 
 ##Handle different possible data states
 selectObject: table
-has_code_column = Get column index: code_col$
+has_code_column = Get column index: code_column$
 num_tokens = Get number of rows
 if not has_code_column
-  Append column: code_col$
+  Append column: code_column$
   tokens_to_code# = to#(num_tokens)
 else
-  ##If code_col$ already exists and has entries, ask if the user wants to code all tokens (supply defaults for file_in_progress)
-  blank# = List row numbers where... self$[row, code_col$] = ""
-  coded# = List row numbers where... self$[row, code_col$] <> "" and self$[row, code_col$] <> unsure_code$ and self$[row, code_col$] <> excluded_code$
-  unsure# = List row numbers where... self$[row, code_col$] = unsure_code$
-  excluded# = List row numbers where... self$[row, code_col$] = excluded_code$
+  ##If code_column$ already exists and has entries, ask if the user wants to code all tokens (supply defaults for file_in_progress)
+  blank# = List row numbers where... self$[row, code_column$] = ""
+  coded# = List row numbers where... self$[row, code_column$] <> "" and self$[row, code_column$] <> unsure_code$ and self$[row, code_column$] <> excluded_code$
+  unsure# = List row numbers where... self$[row, code_column$] = unsure_code$
+  excluded# = List row numbers where... self$[row, code_column$] = excluded_code$
   num_blank = size(blank#)
   num_coded = size(coded#)
   num_unsure = size(unsure#)
@@ -337,7 +335,7 @@ else
       recode_unsure_tokens = 1
     elsif not file_in_progress
       beginPause: "Select tokens to code"
-        comment: "Currently, the " + code_col$ + " column has:"
+        comment: "Currently, the " + code_column$ + " column has:"
         comment: "Uncoded tokens: " + string$(num_blank)
         comment: "Coded tokens: " + string$(num_coded)
         comment: "'Unsure' tokens: " + string$(num_unsure)
@@ -401,7 +399,7 @@ repeat
   line_end = Get value: token, utterance_end_time_column$
   word_start = Get value: token, word_start_time_column$
   word_end = Get value: token, word_end_time_column$
-  curr_code$ = Get value: token, code_col$
+  curr_code$ = Get value: token, code_column$
   
   ##Open in editor
   file_stem$ = replace$(transcript$, ".eaf", "", 1) + "__" + fixed$(line_start, 3) + "-" + fixed$(line_end, 3)
@@ -462,7 +460,7 @@ repeat
   ##Write to table
   if clicked <> 5
     selectObject: table
-    Set string value: token, code_col$, code$
+    Set string value: token, code_column$, code$
   endif
   
   ##Clean up
