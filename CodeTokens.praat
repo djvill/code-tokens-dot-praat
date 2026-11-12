@@ -401,6 +401,7 @@ repeat
   line_end = Get value: token, utterance_end_time_column$
   word_start = Get value: token, word_start_time_column$
   word_end = Get value: token, word_end_time_column$
+  curr_code$ = Get value: token, code_col$
   
   ##Open in editor
   file_stem$ = replace$(transcript$, ".eaf", "", 1) + "__" + fixed$(line_start, 3) + "-" + fixed$(line_end, 3)
@@ -423,12 +424,24 @@ repeat
     endfor
     still_deciding = 1
     while still_deciding
-      beginPause: "Code this token"
-        choice: "Code", 1
-        for v from 1 to size(variants$#)
-          option: variants$#[v]
-        endfor
-      clicked = endPause: "Code", "Unsure", "Exclude", "Replay", if write then "Save & exit" else "Exit" fi, 1, 5
+      if i > 1
+        beginPause: "Code this token"
+          choice: "Code", 1
+          for v from 1 to size(variants$#)
+            option: variants$#[v]
+          endfor
+        clicked = endPause: "Code", "Unsure", "Exclude", "Replay", "Go back", if write then "Save & exit" else "Exit" fi, 1, 6
+      else
+        beginPause: "Code this token"
+          choice: "Code", 1
+          for v from 1 to size(variants$#)
+            option: variants$#[v]
+          endfor
+        clicked = endPause: "Code", "Unsure", "Exclude", "Replay", if write then "Save & exit" else "Exit" fi, 1, 5
+        if clicked = 5
+          clicked = 6
+        endif
+      endif
       still_deciding = 0
       if clicked = 2
         code$ = unsure_code$
@@ -438,15 +451,19 @@ repeat
         still_deciding = 1
         Play window
       elsif clicked = 5
-        code$ = ""
+        i = i - 2
+      elsif clicked = 6
+        code$ = curr_code$
         i = size(tokens_to_code#)
       endif
     endwhile
   endeditor
   
   ##Write to table
-  selectObject: table
-  Set string value: token, code_col$, code$
+  if clicked <> 5
+    selectObject: table
+    Set string value: token, code_col$, code$
+  endif
   
   ##Clean up
   removeObject: sound, tg
